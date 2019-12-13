@@ -20,7 +20,7 @@ namespace CheckoutTechTest.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ObjectResult> Post(PaymentRequest payment)
+        public async Task<ObjectResult> Post(IPaymentRequest payment)
         {
             return Ok(payment);
         }
