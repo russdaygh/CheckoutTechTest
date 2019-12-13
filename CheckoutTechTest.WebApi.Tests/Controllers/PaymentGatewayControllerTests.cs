@@ -21,11 +21,12 @@ namespace CheckoutTechTest.WebApi.Tests.Controllers
             var result = await controller.Post(actualPaymentRequest);
 
             result.ShouldBeOfType(typeof(OkObjectResult));
-            result.Value.ShouldBe(actualPaymentRequest);
+            var objectResult = result as OkObjectResult;
+            objectResult.Value.ShouldBe(actualPaymentRequest);
         }
 
         [Fact]
-        public async Task Post_Returns_BadRequestWithErrors_WhenModelInvalid()
+        public async Task Post_Returns_BadRequest_WhenModelInvalid()
         {
             var controller = new PaymentGatewayController(Mock.Of<ILogger<PaymentGatewayController>>());
 
@@ -33,7 +34,7 @@ namespace CheckoutTechTest.WebApi.Tests.Controllers
 
             var result = await controller.Post(new PaymentRequest());
 
-            result.ShouldBeOfType(typeof(BadRequestObjectResult));
+            result.ShouldBeOfType(typeof(BadRequestResult));
         }
     }
 }

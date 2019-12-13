@@ -20,8 +20,13 @@ namespace CheckoutTechTest.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ObjectResult> Post(IPaymentRequest payment)
+        public async Task<ActionResult> Post(IPaymentRequest payment)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            
             return Ok(payment);
         }
     }
