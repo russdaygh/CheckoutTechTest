@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CheckoutTechTest.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ namespace CheckoutTechTest.WebApi.Controllers
         [HttpPost]
         public async Task<ObjectResult> Post(PaymentRequest payment)
         {
-            return OkObjectResult(payment);
+            return Ok(payment);
         }
     }
 }
