@@ -1,4 +1,4 @@
-namespace CheckoutTechTest.WebApi.Models
+namespace CheckoutTechTest.Models
 {
     public interface IExpiry
     {
