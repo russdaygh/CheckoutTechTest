@@ -30,5 +30,14 @@ namespace CheckoutTechTest.WebApi.Controllers
             
             return Ok(await _acquiringBank.SubmitPayment(payment));
         }
+
+        [HttpGet]
+        [Route("{paymentId}")]
+        public async Task<ActionResult> Get(string paymentId)
+        {
+            var payment = await _acquiringBank.GetPayment(paymentId);
+
+            return payment != null ? (ActionResult)Ok(payment) : NotFound();
+        }
     }
 }

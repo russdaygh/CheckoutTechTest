@@ -35,6 +35,7 @@ namespace CheckoutTechTest.WebApi.Tests.Controllers
 
             var result = await _sut.Post(new PaymentRequest());
 
+            result.ShouldNotBeNull();
             result.ShouldBeOfType(typeof(BadRequestResult));
         }
 
@@ -62,6 +63,35 @@ namespace CheckoutTechTest.WebApi.Tests.Controllers
             var actualPayment = (result as OkObjectResult).Value as IPayment;
 
             actualPayment.ShouldBeSameAs(mockBankResponse);
+        }
+
+        [Fact]
+        public async Task Get_Returns_AcquiringBankResponse()
+        {
+            var paymentId = _fixture.Create<string>();
+            var mockBankResponse = _fixture.Create<IPayment>();
+
+            _mockAcquiringBank.Setup(b => b.GetPayment(It.Is<string>(id => id == paymentId)))
+                .ReturnsAsync(mockBankResponse);
+
+            var result = await _sut.Get(paymentId);
+
+            result.ShouldBeOfType(typeof(OkObjectResult));
+            var actualResult = (result as OkObjectResult).Value as IPayment;
+
+            actualResult.ShouldBeSameAs(mockBankResponse);
+        }
+
+        [Fact]
+        public async Task Get_Returns_NotFound_WhenBankReturnsNull()
+        {
+            _mockAcquiringBank.Setup(b => b.GetPayment(It.IsAny<string>()))
+                .ReturnsAsync((IPayment)null);
+
+            var result = await _sut.Get(_fixture.Create<string>());
+
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType(typeof(NotFoundResult));
         }
     }
 }

@@ -2,7 +2,8 @@ namespace CheckoutTechTest.Models
 {
     public interface IPayment
     {
-        string TransactionId { get; }
+        string PaymentId { get; }
+
         PaymentStatus PaymentStatus { get; }
 
         IPaymentRequest PaymentRequest { get; }
@@ -10,7 +11,7 @@ namespace CheckoutTechTest.Models
 
     public class Payment : IPayment
     {
-        public string TransactionId { get; set; }
+        public string PaymentId { get; set; }
 
         public PaymentStatus PaymentStatus { get; set; }
 
