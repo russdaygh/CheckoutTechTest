@@ -16,28 +16,24 @@ namespace CheckoutTechTest.WebApi.Tests.Controllers
     {
         private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-        [Fact]
-        public async Task Post_Returns_PaymentRequest()
+        private readonly PaymentGatewayController _sut;
+
+        private readonly Mock<IAcquiringBank> _mockAcquiringBank = new Mock<IAcquiringBank>();
+
+        public PaymentGatewayControllerTests()
         {
-            var controller = new PaymentGatewayController(Mock.Of<ILogger<PaymentGatewayController>>());
+            _mockAcquiringBank = new Mock<IAcquiringBank>();
 
-            var actualPaymentRequest = new PaymentRequest();
-
-            var result = await controller.Post(actualPaymentRequest);
-
-            result.ShouldBeOfType(typeof(OkObjectResult));
-            var objectResult = result as OkObjectResult;
-            objectResult.Value.ShouldBe(actualPaymentRequest);
+            _sut = new PaymentGatewayController(Mock.Of<ILogger<PaymentGatewayController>>(),
+                _mockAcquiringBank.Object);
         }
 
         [Fact]
         public async Task Post_Returns_BadRequest_WhenModelInvalid()
         {
-            var controller = new PaymentGatewayController(Mock.Of<ILogger<PaymentGatewayController>>());
+            _sut.ModelState.AddModelError("property", "invalid");
 
-            controller.ModelState.AddModelError("property", "invalid");
-
-            var result = await controller.Post(new PaymentRequest());
+            var result = await _sut.Post(new PaymentRequest());
 
             result.ShouldBeOfType(typeof(BadRequestResult));
         }
@@ -45,31 +41,25 @@ namespace CheckoutTechTest.WebApi.Tests.Controllers
         [Fact]
         public async Task Post_SubmitsPaymentToBank()
         {
-            Mock<IAcquiringBank> mockAcquiringBank = new Mock<IAcquiringBank>();
-
-            var controller = new PaymentGatewayController(Mock.Of<ILogger<PaymentGatewayController>>());
-
             var paymentRequest = _fixture.Create<PaymentRequest>();
 
-            await controller.Post(paymentRequest);
+            await _sut.Post(paymentRequest);
             
-            mockAcquiringBank.Verify(b => b.SubmitPayment(It.Is<IPaymentRequest>(r => r == paymentRequest)));
+            _mockAcquiringBank.Verify(b => b.SubmitPayment(It.Is<IPaymentRequest>(r => r == paymentRequest)));
         }
 
         [Fact]
-        public async Task Post_ReturnsAcquiringBankResponseDetails()
+        public async Task Post_Returns_AcquiringBankResponseDetails()
         {
             var mockBankResponse = _fixture.Create<Payment>();
-            Mock<IAcquiringBank> mockAcquiringBank = new Mock<IAcquiringBank>();
-            mockAcquiringBank.Setup(b => b.SubmitPayment(It.IsAny<IPaymentRequest>()))
+
+            _mockAcquiringBank.Setup(b => b.SubmitPayment(It.IsAny<IPaymentRequest>()))
                 .ReturnsAsync(mockBankResponse);
 
-            var controller = new PaymentGatewayController(Mock.Of<ILogger<PaymentGatewayController>>());
-
-            var result = await controller.Post(new PaymentRequest());
+            var result = await _sut.Post(new PaymentRequest());
 
             result.ShouldBeOfType(typeof(OkObjectResult));
-            var actualPayment = (result as OkObjectResult).Value as Payment;
+            var actualPayment = (result as OkObjectResult).Value as IPayment;
 
             actualPayment.ShouldBeSameAs(mockBankResponse);
         }

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CheckoutTechTest.Models;
+using CheckoutTechTest.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +12,12 @@ namespace CheckoutTechTest.WebApi.Controllers
     {
         private readonly ILogger _logger;
 
-        public PaymentGatewayController(ILogger<PaymentGatewayController> logger)
+        private readonly IAcquiringBank _acquiringBank;
+
+        public PaymentGatewayController(ILogger<PaymentGatewayController> logger, IAcquiringBank acquiringBank)
         {
             _logger = logger;
+            _acquiringBank = acquiringBank;
         }
 
         [HttpPost]
@@ -24,7 +28,7 @@ namespace CheckoutTechTest.WebApi.Controllers
                 return BadRequest();
             }
             
-            return Ok(payment);
+            return Ok(await _acquiringBank.SubmitPayment(payment));
         }
     }
 }
