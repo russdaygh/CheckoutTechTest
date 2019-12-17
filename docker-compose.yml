@@ -1,0 +1,23 @@
+version: "3"
+services:
+    dynamo:
+        image: localstack/localstack
+        ports:
+            - "4569:4569"
+    api:
+        depends_on: 
+            - "dynamo"
+        build:
+            context: .
+            dockerfile: dockerfile
+        ports: 
+            - "8080:80"
+        environment:
+            - AWS_SECRET_ACCESS_KEY=mock_secret_access_key
+            - AWS_ACCESS_KEY_ID=mock_access_key_id
+    e2e-tests:
+        depends_on: 
+            - "api"
+        build:
+            context: .
+            dockerfile: dockerfile.e2e
